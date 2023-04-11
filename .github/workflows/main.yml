@@ -23,7 +23,7 @@ jobs:
     - name: Update list
       run: |
         cd .
-        python3 asn_ip.py
+        python3 asn_cn.py
 
     - name: Commit & Push changes
       uses: actions-js/push@master
