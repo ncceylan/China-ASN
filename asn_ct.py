@@ -45,7 +45,7 @@ print("step 1.添加文件第一行字符串!")
 results = re.findall(', CN\">AS(.*?)</a> </td>', html, re.S)
 for result in results:
     with open(file_name, 'a') as file_object:
-        str2 = result.strip() + ',' + '\n'
+        str2 = result.strip() + '\n'
         file_object.write(str2)
 print("step 2.采集ASN号数据!")
 
