@@ -36,6 +36,7 @@ str5 = '];'
 requests.adapters.DEFAULT_RETRIES = 5
 s = requests.Session()
 s.keep_alive = False
+s.proxies = {"https":"47.100.69.29:8888"}
 
 url = "https://whois.ipip.net/countries/CN"
 headers = {
