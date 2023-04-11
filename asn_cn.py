@@ -32,7 +32,7 @@ str1 = 'define china_asn = ['
 str5 = '];'
 #datas_source = 'https://whois.ipip.net/countries/CN'
 with urllib.request.urlopen('https://whois.ipip.net/countries/CN') as response:
-html = response.read().decode('utf-8')
+    html = response.read().decode('utf-8')
 #response = urllib.request.urlopen(datas_source)
 #html = response.read().decode('utf-8')
 
