@@ -16,14 +16,14 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set up Python 3.7
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: 3.7
 		
     - name: Update paper list
       run: |
-        cd chinaasn
-        python ipip.py
+        cd .
+        python3 asn_ip.py
 		
     - name: commit
       run: |
