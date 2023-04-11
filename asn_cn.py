@@ -30,10 +30,11 @@ def getEndLing(name):
 file_name = 'asn_cn.conf'
 str1 = 'define china_asn = ['
 str5 = '];'
-datas_source = 'https://whois.ipip.net/countries/CN'
-
-response = urllib.request.urlopen(datas_source)
+#datas_source = 'https://whois.ipip.net/countries/CN'
+with urllib.request.urlopen('https://whois.ipip.net/countries/CN') as response:
 html = response.read().decode('utf-8')
+#response = urllib.request.urlopen(datas_source)
+#html = response.read().decode('utf-8')
 
 with open(file_name, 'a') as file:
     file.write(str1 + "\n")
