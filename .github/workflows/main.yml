@@ -18,10 +18,13 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.7'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests lxml        
 
     - name: Update list
       run: |
-        cd .
         python3 asn_cn.py
 
     - name: Commit & Push changes
