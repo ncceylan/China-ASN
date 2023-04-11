@@ -34,10 +34,12 @@ str1 = 'define china_asn = ['
 str5 = '];'
 
 
-datas_source = 'https://whois.ipip.net/countries/CN'
-
+url = "https://whois.ipip.net/countries/CN"
+headers = {
+       "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+    }
 try:
-    response = requests.get(datas_source, timeout=None)
+    response = requests.get(url = url, headers = headers)
     response.raise_for_status()
     html = response.text
 except requests.exceptions.RequestException as e:
