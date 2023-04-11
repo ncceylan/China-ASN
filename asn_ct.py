@@ -29,10 +29,10 @@ def getEndLing(name):
                 offset *= 2
 
 
-file_name = 'asn_cn.conf'
+file_name = 'asn_ct.conf'
 str1 = 'define china_asn = ['
 str5 = '];'
-datas_source = 'https://whois.ipip.net/countries/CN'
+datas_source = 'https://whois.ipip.net/search/CHINA%20TELECOM'
 
 response = urllib.request.urlopen(datas_source)
 
@@ -69,4 +69,4 @@ with open(file_name, 'a') as file:
     file.write(str4 + "\n")
     file.write("")
 
-print("step 4.生成中国区ASN成功!")
+print("step 4.生成中国电信ASN成功!")
