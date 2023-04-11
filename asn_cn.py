@@ -28,7 +28,7 @@ def getEndLing(name):
             else:
                 offset *= 2
 
-
+cd ./
 file_name = 'asn_cn.conf'
 str1 = 'define china_asn = ['
 str5 = '];'
