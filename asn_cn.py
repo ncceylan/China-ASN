@@ -1,7 +1,7 @@
 # version :Python 3.7.3
 import os
 import re
-import urllib.request
+import requests
 
 
 # 读出文件最后一行
@@ -32,11 +32,18 @@ def getEndLing(name):
 file_name = 'asn_cn.conf'
 str1 = 'define china_asn = ['
 str5 = '];'
+
+
 datas_source = 'https://whois.ipip.net/countries/CN'
 
-response = urllib.request.urlopen(datas_source), timeout=None
+try:
+    response = requests.get(datas_source, timeout=None)
+    response.raise_for_status()
+    html = response.text
+except requests.exceptions.RequestException as e:
+    print(e)
+    html = ''
 
-html = response.read().decode('utf-8')
 
 with open(file_name, 'a') as file:
     file.write(str1 + "\n")
