@@ -33,6 +33,9 @@ file_name = 'asn_cn.conf'
 str1 = 'define china_asn = ['
 str5 = '];'
 
+requests.adapters.DEFAULT_RETRIES = 5
+s = requests.Session()
+s.keep_alive = False
 
 url = "https://whois.ipip.net/countries/CN"
 headers = {
