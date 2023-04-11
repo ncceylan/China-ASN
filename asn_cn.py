@@ -1,7 +1,7 @@
 # version :Python 3.7.3
 import os
 import re
-
+import urllib.request  
 
 # 读出文件最后一行
 # 参考大神代码https://blog.csdn.net/weixin_30632899/article/details/97566294
@@ -33,7 +33,6 @@ str5 = '];'
 datas_source = 'https://whois.ipip.net/countries/CN'
 
 response = urllib.request.urlopen(datas_source)
-
 html = response.read().decode('utf-8')
 
 with open(file_name, 'a') as file:
