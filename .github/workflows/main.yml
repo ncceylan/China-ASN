@@ -24,7 +24,7 @@ jobs:
         cd .
         python3 asn_cn.py
 
-- name: commit
+    - name: commit
       run: |
         git config --global user.email ncceylan@outlook.com
         git config --global user.name ncceylan
