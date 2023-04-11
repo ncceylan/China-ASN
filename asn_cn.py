@@ -18,7 +18,7 @@ def initFile():
         asnFile.write("// Made by Vincent, All rights reserved. " + "\n\n")
 
 def saveLatestASN():
-    url = "https://whois.ipip.net/countries/CN"
+    url = "https://bgp.he.net/country/CN"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
     }
