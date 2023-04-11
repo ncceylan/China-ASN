@@ -39,13 +39,13 @@ response = urllib.request.urlopen(datas_source)
 html = response.read().decode('utf-8')
 
 with open(file_name, 'a') as file:
-    file.write("")
+    file.write(str1 + "\n")
 print("step 1.添加文件第一行字符串!")
 
 results = re.findall(', CN\">AS(.*?)</a> </td>', html, re.S)
 for result in results:
     with open(file_name, 'a') as file_object:
-        str2 = result.strip() + '\n'
+        str2 = result.strip() + ',' + '\n'
         file_object.write(str2)
 print("step 2.采集ASN号数据!")
 
@@ -67,6 +67,6 @@ print("step 3.提取数据完成!")
 str4 = str3[:-1]
 with open(file_name, 'a') as file:
     file.write(str4 + "\n")
-    file.write("")
+    file.write(str5)
 
 print("step 4.生成中国区ASN成功!")
