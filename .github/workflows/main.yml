@@ -8,7 +8,7 @@ on:
 jobs:
   build:
 
-    runs-on: debain-latest
+    runs-on: debian-latest
 
     steps:
     - name: checkout actions
