@@ -1,7 +1,6 @@
 # version :Python 3.7.3
 import os
 import re
-import urllib.request
 
 
 # 读出文件最后一行
