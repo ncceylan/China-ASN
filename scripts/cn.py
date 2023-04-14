@@ -23,7 +23,11 @@ def get_last_line(file_name):
 file_name = '../asn_cn.conf'
 datas_source = 'https://whois.ipip.net/countries/CN'
 
-response = requests.get(datas_source)
+proxies = {
+    'http': os.environ['PROXY_HTTP'],
+    #'https': os.environ['PROXY_HTTPS'],
+}
+response = requests.get(datas_source, proxies=proxies)
 html = response.text
 
 with open(file_name, 'w') as file:
