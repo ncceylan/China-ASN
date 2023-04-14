@@ -1,6 +1,7 @@
-import os
 import re
+import os
 import requests
+from proxy_helper import get_free_proxies, get_random_proxy
 
 def get_last_line(file_name):
     with open(file_name, 'rb') as f:
@@ -23,11 +24,14 @@ def get_last_line(file_name):
 file_name = '../asn_ct.conf'
 datas_source = 'https://whois.ipip.net/search/CHINA%20TELECOM'
 
-proxies = {
-    'http': os.environ['PROXY_HTTP'],
-    #'https': os.environ['PROXY_HTTPS'],
+proxies = get_free_proxies()
+proxy = get_random_proxy(proxies)
+
+proxy_dict = {
+    'http': f'http://{proxy}',
+    'https': f'http://{proxy}',  # 注意，这里也使用了HTTP代理，因为免费代理可能不支持HTTPS
 }
-response = requests.get(datas_source, proxies=proxies)
+response = requests.get(datas_source, proxies=proxy_dict)
 html = response.text
 
 with open(file_name, 'w') as file:
