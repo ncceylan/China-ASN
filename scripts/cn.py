@@ -1,51 +1,45 @@
-import re
 import os
+import re
 import requests
-from proxy_helper import get_free_proxies, get_random_proxy
+
 
 def get_last_line(file_name):
     with open(file_name, 'rb') as f:
         file_size = os.path.getsize(file_name)
         offset = -100
-        if file_size == 0:
-            return ''
         while True:
             if abs(offset) >= file_size:
                 f.seek(-file_size, 2)
-                data1 = f.readlines()
-                return data1[-1]
+                lines = f.readlines()
+                return lines[-1]
             f.seek(offset, 2)
-            data1 = f.readlines()
-            if len(data1) > 1:
-                return data1[-1]
+            lines = f.readlines()
+            if len(lines) > 1:
+                return lines[-1]
             else:
                 offset *= 2
 
-file_name = '../asn_cn.conf'
-datas_source = 'https://whois.ipip.net/countries/CN'
 
-proxies = get_free_proxies()
-proxy = get_random_proxy(proxies)
+def main():
+    file_name = '../asn_cn.conf'
+    datas_source = 'https://whois.ipip.net/countries/CN'
 
-proxy_dict = {
-    'http': f'http://{proxy}',
-    'https': f'http://{proxy}',  # 注意，这里也使用了HTTP代理，因为免费代理可能不支持HTTPS
-}
-response = requests.get(datas_source, proxies=proxy_dict)
-html = response.text
+    response = requests.get(datas_source)
+    html = response.text
 
-with open(file_name, 'w') as file:
-    file.write('define china_asn = [\n')
+    results = re.findall(', CN\">AS(.*?)</a> </td>', html, re.S)
+    if not results:
+        print("未能获取 ASN 数据。请检查网络连接或数据源。")
+        return
 
-results = re.findall(', CN\">AS(.*?)</a> </td>', html, re.S)
-for result in results[:-1]:
-    with open(file_name, 'a') as file_object:
-        str2 = result.strip() + ',\n'
-        file_object.write(str2)
+    with open(file_name, 'w', encoding='utf-8') as file:
+        file.write('define china_asn = [\n')
+        for result in results[:-1]:
+            file.write(f"{result.strip()},\n")
+        file.write(f"{results[-1].strip()}\n];\n")
 
-last_result = results[-1]
-with open(file_name, 'a') as file_object:
-    str2 = last_result.strip() + '\n];\n'
-    file_object.write(str2)
+    print("生成中国区ASN成功!")
 
-print("生成中国区ASN成功!")
+
+if __name__ == "__main__":
+    main()
