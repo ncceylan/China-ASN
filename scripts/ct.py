@@ -21,7 +21,7 @@ def get_last_line(file_name):
 
 
 def main():
-    file_name = '../asn_cn.conf'
+    file_name = '../asn_ct.conf'
     datas_source = 'https://whois.ipip.net/search/CHINA%20TELECOM'
 
     response = requests.get(datas_source)
