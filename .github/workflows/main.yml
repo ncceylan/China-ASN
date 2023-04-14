@@ -24,13 +24,10 @@ jobs:
           pip install requests
 
       - name: Run Scripts
-        env:
-          PROXY_HTTP: "http://123.169.39.212:9999"
-          #PROXY_HTTPS: "https://your_proxy_server:port" PROXY_HTTPS=$PROXY_HTTPS 
         run: |
           for script in scripts/*.py; do
             echo "Running script: $script"
-            PROXY_HTTP=$PROXY_HTTP python "$script"
+            python "$script"
           done
 
       - name: Upload Results
