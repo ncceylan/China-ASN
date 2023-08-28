@@ -16,9 +16,9 @@ def save_asn_to_file(asn_numbers, file_name):
 
 def main():
     urls = [
-        ('https://whois.ipip.net/countries/CN', 'asn_cn.conf'),
-        ('https://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf'),
-        ('https://whois.ipip.net/search/CHINA%20MOBILE', 'asn_cmcc.conf')
+        ('http://whois.ipip.net/countries/CN', 'asn_cn.conf'),
+        ('http://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf'),
+        ('http://whois.ipip.net/search/CHINA%20MOBILE', 'asn_cmcc.conf')
     ]
 
     for url, file_name in urls:
