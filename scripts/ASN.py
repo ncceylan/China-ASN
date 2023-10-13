@@ -1,29 +1,36 @@
-import re
 import requests
+import re
+from bs4 import BeautifulSoup
 
-
-def get_asn_from_url(url, file_name):
+def get_html_content(url):
     response = requests.get(url)
-    html = response.text
+    return response.text
 
-    results = re.findall(r'<a href="/as/(\d+)"', html)
-    if not results:
-        print(f"未能获取 {file_name} 数据。请检查网络连接或数据源。")
-        return
+def extract_asn_numbers(html_content):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    asn_tags = soup.find_all('a', string=re.compile(r'AS\d+'))
+    return [tag.string[2:] for tag in asn_tags]
 
+def save_asn_to_file(asn_numbers, file_name):
     with open(file_name, 'w', encoding='utf-8') as file:
-        for result in results[:-1]:
-            file.write(result.strip() + '\n')
-        file.write(results[-1].strip())
-
-    print(f"生成 {file_name} 成功!")
-
+        file.write('\n'.join(asn_numbers))
 
 def main():
-    get_asn_from_url('https://whois.ipip.net/iso/CN', 'asn_cn.conf')
-    get_asn_from_url('https://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf')
-    get_asn_from_url('https://whois.ipip.net/search/CHINA%20MOBILE', 'asn_cmcc.conf')
+    urls = [
+        ('http://whois.ipip.net/countries/CN', 'asn_cn.conf'),
+        ('http://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf'),
+        ('http://whois.ipip.net/search/CHINA%20MOBILE', 'asn_cmcc.conf')
+    ]
 
+    for url, file_name in urls:
+        html_content = get_html_content(url)
+        asn_numbers = extract_asn_numbers(html_content)
+
+        if not asn_numbers:
+            print(f"未能获取 {file_name} 数据。请检查网络连接或数据源。")
+        else:
+            save_asn_to_file(asn_numbers, file_name)
+            print(f"生成 {file_name} 成功!")
 
 if __name__ == "__main__":
     main()
