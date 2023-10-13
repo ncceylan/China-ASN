@@ -20,9 +20,9 @@ def get_asn_from_url(url, file_name):
 
 
 def main():
-    get_asn_from_url('https://bgp.he.net/country/CN', 'asn_cn.conf')
-    get_asn_from_url('https://bgp.he.net/search?search%5Bsearch%5D=CHINA+TELECOM&type=IPv4', 'asn_ct.conf')
-    get_asn_from_url('https://bgp.he.net/search?search%5Bsearch%5D=CHINA+MOBILE&type=IPv4', 'asn_cmcc.conf')
+    get_asn_from_url('https://whois.ipip.net/iso/CN', 'asn_cn.conf')
+    get_asn_from_url('https://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf')
+    get_asn_from_url('https://whois.ipip.net/search/CHINA%20MOBILE', 'asn_cmcc.conf')
 
 
 if __name__ == "__main__":
