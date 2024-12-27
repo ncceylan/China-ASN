@@ -1,14 +1,19 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 def get_asn_from_url(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        html_content = response.text
-        soup = BeautifulSoup(html_content, 'html.parser')
-        asn_tags = soup.find_all('a', string=re.compile(r'AS\d+'))
-        return [tag.string[2:] for tag in asn_tags]
-    else:
+    try:
+        response = requests.get(url, stream=False, timeout=10)
+        if response.status_code == 200:
+            html_content = response.text
+            soup = BeautifulSoup(html_content, 'html.parser')
+            asn_tags = soup.find_all('a', string=re.compile(r'AS\d+'))
+            return [tag.string[2:] for tag in asn_tags]
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"请求失败: {e}")
         return None
 
 def save_asn_to_file(asn_numbers, file_name):
