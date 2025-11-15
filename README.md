@@ -1,4 +1,4 @@
-# Chinaasn
+# China_asn
 使用ipip数据库定时生成中国区asn，包括中国asn，中国电信asn，中国移动asn
 
 来源地址https://whois.ipip.net/countries/CN
@@ -45,5 +45,6 @@
 
 
 用于Firewall - mangle页，通过dst-addrss= 引用
+
 
 
