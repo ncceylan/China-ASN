@@ -69,9 +69,9 @@ def remove_duplicate_asns(file_path_a, file_path_b):
         return False
 
 def main():
-    # 使用GitHub工作空间路径
-    workspace = os.environ.get('GITHUB_WORKSPACE', '.')
-    output_dir = os.path.join(workspace, 'asn_data')
+    # 使用当前目录（main分支根目录）
+    output_dir = os.getcwd()
+    print(f"📁 输出目录: {output_dir}")
     
     urls = [
         ('http://whois.ipip.net/countries/CN', 'asn_cn.conf'),
@@ -88,6 +88,7 @@ def main():
         asn_numbers = get_asn_from_url(url)
         
         if asn_numbers:
+            # 直接保存到当前目录（main根目录）
             file_path = os.path.join(output_dir, file_name)
             if save_asn_to_file(asn_numbers, file_path):
                 print(f"✅ 成功生成 {file_name} ({len(asn_numbers)}个ASN)")
@@ -118,6 +119,8 @@ def main():
             with open(file_path, 'r') as f:
                 line_count = len([line for line in f if line.strip()])
             print(f"  📄 {file_name}: {line_count}个ASN")
+        else:
+            print(f"  ❌ {file_name}: 文件不存在")
     
     # 设置退出码
     if success_count == len(urls):
