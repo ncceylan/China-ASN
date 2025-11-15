@@ -1,0 +1,65 @@
+name: Build PBR
+
+on:
+  push:
+    paths:
+      - 'asn_*.conf'  # 当ASN文件变更时触发
+      - 'ros-dpbr.sh'  # 当脚本变更时触发
+  schedule:
+    - cron: "2 0/1 * * *"
+  workflow_dispatch:
+  # 允许被ASN更新工作流触发
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Verify ASN files exist
+      run: |
+        echo "🔍 检查ASN文件:"
+        ls -la *.conf || echo "未找到.conf文件"
+        for file in asn_cn.conf asn_ct.conf asn_cmcc.conf; do
+          if [ -f "$file" ]; then
+            lines=$(wc -l < "$file" 2>/dev/null || echo 0)
+            echo "✅ $file: $lines 行"
+          else
+            echo "❌ $file: 文件不存在"
+          fi
+        done
+
+    - name: Download CIDR and build PBR
+      run: |
+        chmod +x ros-dpbr.sh
+        ./ros-dpbr.sh
+        
+    - name: Verify generated RSC files
+      run: |
+        echo "🔍 检查生成的RSC文件:"
+        ls -la *.rsc || echo "未找到.rsc文件"
+        for file in CN.rsc CMCC.rsc CT.rsc; do
+          if [ -f "$file" ]; then
+            lines=$(wc -l < "$file" 2>/dev/null || echo 0)
+            echo "✅ $file: $lines 行"
+          else
+            echo "❌ $file: 文件不存在"
+          fi
+        done
+
+    - name: Commit & Push changes
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "GitHub Actions"
+        git add *.rsc
+        if git diff --staged --quiet; then
+          echo "📭 无RSC文件变更"
+        else
+          git commit -m "🤖 Auto-update PBR rules"
+          git push
+        fi
