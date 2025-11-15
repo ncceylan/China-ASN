@@ -1,3 +1,4 @@
+# scripts/ASN.py
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -11,67 +12,33 @@ def get_asn_from_url(url):
     }
     
     try:
+        print(f"🌐 请求URL: {url}")
         response = requests.get(url, timeout=30, headers=headers)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, 'html.parser')
         asn_tags = soup.find_all('a', string=re.compile(r'AS\d+'))
         
-        asn_numbers = list(set(tag.string[2:] for tag in asn_tags))
+        print(f"🔍 找到 {len(asn_tags)} 个ASN标签")
+        asn_numbers = list(set(tag.string[2:] for tag in asn_tags if tag.string))
+        print(f"📊 去重后获得 {len(asn_numbers)} 个ASN号码")
+        
         return sorted(asn_numbers, key=int)
         
     except Exception as e:
         print(f"❌ 请求失败 {url}: {e}")
         return None
 
-def save_asn_to_file(asn_numbers, filename):
-    """保存ASN号码到文件（根目录）"""
-    try:
-        with open(filename, 'w', encoding='utf-8') as file:
-            file.write('\n'.join(asn_numbers))
-        print(f"✅ 成功保存 {filename} ({len(asn_numbers)}个ASN)")
-        return True
-    except Exception as e:
-        print(f"❌ 文件保存失败 {filename}: {e}")
-        return False
-
-def remove_duplicate_asns(file_a, file_b):
-    """移除文件A中与文件B重复的ASN"""
-    try:
-        if not os.path.exists(file_a):
-            print(f"⚠️ 文件 {file_a} 不存在")
-            return False
-            
-        if not os.path.exists(file_b):
-            print(f"⚠️ 文件 {file_b} 不存在，跳过去重")
-            return False
-            
-        with open(file_a, 'r') as file:
-            asns_a = set(line.strip() for line in file if line.strip())
-        
-        with open(file_b, 'r') as file:
-            asns_b = set(line.strip() for line in file if line.strip())
-        
-        asns_to_keep = asns_a - asns_b
-        
-        removed_count = len(asns_a) - len(asns_to_keep)
-        print(f"📊 从 {file_a} 中移除 {removed_count} 个重复ASN")
-        
-        with open(file_a, 'w') as file:
-            file.write('\n'.join(sorted(asns_to_keep, key=int)))
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ 处理文件时出错: {e}")
-        return False
-
 def main():
-    # 获取当前工作目录（main分支根目录）
+    # 详细的路径调试
     current_dir = os.getcwd()
-    print(f"📍 工作目录: {current_dir}")
+    print(f"📍 当前工作目录: {current_dir}")
+    print(f"📁 目录内容: {os.listdir('.')}")
     
-    # 目标URL和对应文件名
+    # 检查脚本所在目录
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"📜 脚本目录: {script_dir}")
+    
     urls = [
         ('http://whois.ipip.net/countries/CN', 'asn_cn.conf'),
         ('http://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf'),
@@ -80,47 +47,37 @@ def main():
     
     print("🚀 开始获取ASN数据...")
     
-    # 收集所有ASN数据
-    success_count = 0
     for url, filename in urls:
-        print(f"📡 正在获取 {url} ...")
+        print(f"\n📡 处理 {filename} ...")
         asn_numbers = get_asn_from_url(url)
         
         if asn_numbers:
-            if save_asn_to_file(asn_numbers, filename):
-                success_count += 1
-            else:
-                print(f"❌ 生成 {filename} 失败")
+            file_path = os.path.join(current_dir, filename)
+            print(f"💾 保存路径: {file_path}")
+            
+            try:
+                with open(filename, 'w', encoding='utf-8') as file:
+                    file.write('\n'.join(asn_numbers))
+                print(f"✅ 成功保存 {filename}")
+                
+                # 确认文件已创建
+                if os.path.exists(filename):
+                    file_size = os.path.getsize(filename)
+                    print(f"📏 文件大小: {file_size} 字节")
+                else:
+                    print("❌ 文件创建失败")
+                    
+            except Exception as e:
+                print(f"❌ 保存失败: {e}")
         else:
             print(f"❌ 未能获取 {filename} 数据")
     
-    # 执行去重操作（仅当所有文件都成功生成时）
-    if success_count == len(urls):
-        print("🔄 执行去重操作...")
-        if remove_duplicate_asns('asn_cn.conf', 'asn_cmcc.conf'):
-            print("✅ 去重操作完成")
-        else:
-            print("⚠️ 去重操作出现问题")
-    else:
-        print("⚠️ 由于部分数据获取失败，跳过去重操作")
-    
-    # 最终文件统计
-    print("\n📊 最终文件统计:")
-    total_asns = 0
-    for filename in ['asn_cn.conf', 'asn_ct.conf', 'asn_cmcc.conf']:
-        if os.path.exists(filename):
-            with open(filename, 'r') as f:
-                lines = [line.strip() for line in f if line.strip()]
-                count = len(lines)
-                total_asns += count
-                print(f"  📄 {filename}: {count}个ASN")
-        else:
-            print(f"  ❌ {filename}: 文件不存在")
-    
-    print(f"📈 总共生成: {total_asns}个ASN")
-    
-    # 设置退出码
-    sys.exit(0 if success_count > 0 else 1)
+    # 最终检查
+    print(f"\n🔍 最终目录内容:")
+    for item in os.listdir('.'):
+        if item.endswith('.conf'):
+            size = os.path.getsize(item)
+            print(f"  📄 {item}: {size} 字节")
 
 if __name__ == "__main__":
     main()
