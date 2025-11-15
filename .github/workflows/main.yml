@@ -1,83 +1,80 @@
-# scripts/ASN.py
-import requests
-from bs4 import BeautifulSoup
-import re
-import os
-import sys
+name: Run ASN Script
 
-def get_asn_from_url(url):
-    """从URL获取ASN号码"""
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
-    
-    try:
-        print(f"🌐 请求URL: {url}")
-        response = requests.get(url, timeout=30, headers=headers)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        asn_tags = soup.find_all('a', string=re.compile(r'AS\d+'))
-        
-        print(f"🔍 找到 {len(asn_tags)} 个ASN标签")
-        asn_numbers = list(set(tag.string[2:] for tag in asn_tags if tag.string))
-        print(f"📊 去重后获得 {len(asn_numbers)} 个ASN号码")
-        
-        return sorted(asn_numbers, key=int)
-        
-    except Exception as e:
-        print(f"❌ 请求失败 {url}: {e}")
-        return None
+on: [push, pull_request]
 
-def main():
-    # 详细的路径调试
-    current_dir = os.getcwd()
-    print(f"📍 当前工作目录: {current_dir}")
-    print(f"📁 目录内容: {os.listdir('.')}")
-    
-    # 检查脚本所在目录
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    print(f"📜 脚本目录: {script_dir}")
-    
-    urls = [
-        ('http://whois.ipip.net/countries/CN', 'asn_cn.conf'),
-        ('http://whois.ipip.net/search/CHINA%20TELECOM', 'asn_ct.conf'),
-        ('http://whois.ipip.net/search/CHINA%20MOBILE', 'asn_cmcc.conf')
-    ]
-    
-    print("🚀 开始获取ASN数据...")
-    
-    for url, filename in urls:
-        print(f"\n📡 处理 {filename} ...")
-        asn_numbers = get_asn_from_url(url)
-        
-        if asn_numbers:
-            file_path = os.path.join(current_dir, filename)
-            print(f"💾 保存路径: {file_path}")
-            
-            try:
-                with open(filename, 'w', encoding='utf-8') as file:
-                    file.write('\n'.join(asn_numbers))
-                print(f"✅ 成功保存 {filename}")
-                
-                # 确认文件已创建
-                if os.path.exists(filename):
-                    file_size = os.path.getsize(filename)
-                    print(f"📏 文件大小: {file_size} 字节")
-                else:
-                    print("❌ 文件创建失败")
-                    
-            except Exception as e:
-                print(f"❌ 保存失败: {e}")
-        else:
-            print(f"❌ 未能获取 {filename} 数据")
-    
-    # 最终检查
-    print(f"\n🔍 最终目录内容:")
-    for item in os.listdir('.'):
-        if item.endswith('.conf'):
-            size = os.path.getsize(item)
-            print(f"  📄 {item}: {size} 字节")
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
 
-if __name__ == "__main__":
-    main()
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Debug initial directory
+      run: |
+        echo "📍 初始工作目录: $(pwd)"
+        echo "📁 初始文件列表:"
+        ls -la
+        echo "📁 scripts目录内容:"
+        ls -la scripts/ || echo "scripts目录不存在"
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 lxml
+
+    - name: Run ASN script with debug
+      run: |
+        echo "📍 运行脚本前目录: $(pwd)"
+        python scripts/ASN.py
+
+    - name: Check generated files
+      run: |
+        echo "📍 脚本运行后目录: $(pwd)"
+        echo "📁 生成的文件:"
+        ls -la *.conf 2>/dev/null || echo "未找到.conf文件"
+        
+        # 详细检查每个文件
+        for file in asn_cn.conf asn_ct.conf asn_cmcc.conf; do
+          if [ -f "$file" ]; then
+            echo "✅ $file 存在"
+            echo "内容预览:"
+            head -5 "$file" 2>/dev/null || echo "文件为空或无读取权限"
+          else
+            echo "❌ $file 不存在"
+          fi
+        done
+
+    - name: Debug directory structure
+      run: |
+        echo "🌳 完整目录结构:"
+        find . -name "*.conf" -o -name "ASN.py" | sort
+
+    - name: Commit changes if on main branch
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "🔍 检查git状态:"
+        git status
+        
+        echo "🔍 检查文件变更:"
+        git diff --name-only
+        
+        # 添加所有.conf文件
+        git add *.conf 2>/dev/null || echo "无.conf文件可添加"
+        
+        if git diff --staged --quiet; then
+          echo "📭 无变更需要提交"
+        else
+          echo "📬 检测到变更，准备提交"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Actions"
+          git commit -m "🤖 Auto-update ASN data"
+          git push
+        fi
